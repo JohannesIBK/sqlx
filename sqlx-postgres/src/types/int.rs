@@ -1,3 +1,4 @@
+use std::num::{NonZeroU16, NonZeroU32, NonZeroU64};
 use byteorder::{BigEndian, ByteOrder};
 
 use crate::decode::Decode;
@@ -151,5 +152,29 @@ impl Encode<'_, Postgres> for i64 {
 impl Decode<'_, Postgres> for i64 {
     fn decode(value: PgValueRef<'_>) -> Result<Self, BoxDynError> {
         int_decode(value)
+    }
+}
+
+impl Decode<'_, Postgres> for NonZeroU16 {
+    fn decode(value: PgValueRef<'_>) -> Result<Self, BoxDynError> {
+        let value: u16 = int_decode(value)?.try_into()?;
+
+        NonZeroU16::try_from(value).map_err(Into::into)
+    }
+}
+
+impl Decode<'_, Postgres> for NonZeroU32 {
+    fn decode(value: PgValueRef<'_>) -> Result<Self, BoxDynError> {
+        let value: u32 = int_decode(value)?.try_into()?;
+
+        NonZeroU32::try_from(value).map_err(Into::into)
+    }
+}
+
+impl Decode<'_, Postgres> for NonZeroU64 {
+    fn decode(value: PgValueRef<'_>) -> Result<Self, BoxDynError> {
+        let value: u64 = int_decode(value)?.try_into()?;
+
+        NonZeroU64::try_from(value).map_err(Into::into)
     }
 }
